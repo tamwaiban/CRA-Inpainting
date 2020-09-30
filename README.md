@@ -27,6 +27,11 @@ Mask type can be selected from the following; `free_form` `bbox` `single_bbox`
 ```
 python3 train.py --__gen_masks__ true --__mask_type__ bbox
 ```
+The generator is a combination of gated convolutions and depthwise seperable convolutions,
+alongside some attention & aggregation mechanisms from the original paper. This is aided
+during training by a secondary network, the weights of which are from VGG16, acting almost
+as a feature extractor helping optimise the loss. 
+The discriminator utilises spectral (instance/batch) normalised convolutions. 
 
 ### Inference
 This repository uses Tensorflow checkpoints, meaning to load the model

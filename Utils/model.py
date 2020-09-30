@@ -307,10 +307,6 @@ class SpectralNormalization(tf.keras.layers.Wrapper):
         self.iteration = iteration
         self.eps = eps
         self.do_power_iteration = training
-        if not isinstance(layer, tf.keras.layers.Layer):
-            raise ValueError(
-                'Please initialize `TimeDistributed` layer with a '
-                '`Layer` instance. You passed: {input}'.format(input=layer))
         super(SpectralNormalization, self).__init__(layer, **kwargs)
 
     def build(self, input_shape=None):
