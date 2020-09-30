@@ -32,17 +32,17 @@ class WassersteinTrainer:
             opt.__lrd__, decay_steps=10000, decay_rate=0.96, staircase=True)
         opt_d = tf.keras.optimizers.Adam(learning_rate=d_sch)
 
-        train_set = ImageDataLoader(opt)
+        train_loader = ImageDataLoader(opt)
         prev_time = time.time()
         for epoch in range(opt.__epochs__):
-            for step, input_ in enumerate(train_set.data):
-                r_, g_, b_, mask = tf.split(input_, 4, axis=1)
+            for step, input_ in enumerate(train_loader.data):
+                r_, g_, b_, mask = tf.split(input_, 4, axis=1)  # Our mask is never changing...
                 img = tf.concat((r_, g_, b_), axis=1)
                 with tf.GradientTape() as d_tape, tf.GradientTape() as g_tape:
                     first_output, second_output = self.generator(input_, training=True)
 
-                    first_out_whole_img = img * (1 - mask) + first_output * mask  # tanh limited
-                    second_out_whole_img = img * (1 - mask) + second_output * mask  # tanh limited
+                    first_out_whole_img = img * (1 - mask) + first_output * mask
+                    second_out_whole_img = img * (1 - mask) + second_output * mask
 
                     fake_scalar = self.discriminator(tf.concat((second_out_whole_img, mask), axis=1), training=True)
                     real_scalar = self.discriminator(input_, training=True)
@@ -85,7 +85,7 @@ class WassersteinTrainer:
                         self.save_model(epoch, opt)
                         self.sample_model(img, mask, first_output, second_output, first_out_whole_img,
                                           second_out_whole_img, epoch, opt.__samplepath__)
-                    break  # Shift to next Epoch
+                    break
 
     def sample_model(self, img, mask, first_out, second_out, fout_whole, sout_whole, epoch, sample_folder):
         masked_img = img * (1 - mask) + mask

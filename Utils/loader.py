@@ -1,23 +1,15 @@
 import glob
-import random
 
 import tensorflow as tf
 
 AUTO_TUNE = tf.data.experimental.AUTOTUNE
 ALL_MASK_TYPES = ['single_bbox', 'bbox', 'free_form']
+GENERATOR = tf.random.Generator.from_seed(1)
 
 
 class RandomMaskLoader:
-    def __init__(self, opt):
-        assert opt.__mask_type__ in ALL_MASK_TYPES
-        self.opt = opt
-        if self.opt.__mask_type__ == 'single_bbox':
-            self.opt.__box_count__ = 1
-            self.mask_function = self.bbox2mask
-        if self.opt.__mask_type__ == 'bbox':
-            self.mask_function = self.bbox2mask
-        else:
-            self.mask_function = self.random_ff_mask
+    def __init__(self):
+        pass
 
     @staticmethod
     def trapez(y, y0, w):
@@ -50,10 +42,9 @@ class RandomMaskLoader:
         y = x * slope + (c1 * r0 - c0 * r1) / (c1 - c0)
         thickness = tf.math.ceil(w / 2)
         yy = (tf.reshape(tf.math.floor(y), [-1, 1]) + tf.reshape(tf.range(-thickness - 1, thickness + 2), [1, -1]))
-        xx = tf.repeat(x, yy.shape[1])
+        xx = tf.repeat(x, yy.shape[1])  # So this isn't working anymore.
         values = tf.reshape(RandomMaskLoader.trapez(yy, tf.reshape(y, [-1, 1]), w), [-1])
         yy = tf.reshape(yy, [-1])
-
         limits_y = tf.math.logical_and(yy >= 0, yy < shape)
         limits_x = tf.math.logical_and(xx >= 0, xx < shape)
         limits = tf.math.logical_and(limits_y, limits_x)
@@ -67,18 +58,18 @@ class RandomMaskLoader:
         height = shape
         width = shape
         mask = tf.zeros((height, width), tf.float32)
-        times = random.randint(1, times)
+        times = GENERATOR.uniform([], 1, times)
         for i in range(times):
-            start_x = random.randint(1, width)
+            start_x = GENERATOR.uniform([], 1, width)
             start_x = tf.cast(start_x, tf.float32)
-            start_y = random.randint(1, height)
+            start_y = GENERATOR.uniform([], 1, height)
             start_y = tf.cast(start_y, tf.float32)
-            for j in range(1 + random.randint(0, 5)):
-                angle = 0.01 + random.randint(0, max_angle)
+            for j in range(1 + GENERATOR.uniform([], 0, 5)):
+                angle = 0.01 + GENERATOR.uniform([], 0, max_angle)
                 if i % 2 == 0:
                     angle = 2 * 3.1415926 - angle
-                length = 10 + random.randint(0, max_len)
-                brush_w = tf.cast(5 + random.randint(0, max_width), tf.float32)
+                length = 10 + GENERATOR.uniform([], 0, max_len)
+                brush_w = tf.cast(5 + GENERATOR.uniform([], 0, max_width), tf.float32)
                 end_x = tf.cast((start_x + length * tf.sin(angle)), tf.float32)
                 end_y = tf.cast((start_y + length * tf.cos(angle)), tf.float32)
                 mask = RandomMaskLoader.weighted_line(mask, start_y, start_x, end_y, end_x, brush_w, shape)
@@ -95,8 +86,8 @@ class RandomMaskLoader:
         hor_margin = margin
         max_t = img_height - ver_margin - height
         max_l = img_width - hor_margin - width
-        top = random.randint(ver_margin, max_t)
-        left = random.randint(hor_margin, max_l)
+        top = GENERATOR.uniform([], ver_margin, max_t)
+        left = GENERATOR.uniform([], hor_margin, max_l)
         return top / img_height, left / img_width, (height + top) / img_height, (width + left) / img_width
 
     @staticmethod
@@ -112,11 +103,11 @@ class RandomMaskLoader:
         y_s = tf.reshape(tf.cast(y_s, tf.float32), [-1])
         values = tf.ones(len(x_s), tf.float32)
         img = tf.cast(img, tf.float32)
-        img = RandomMaskLoader.apply_output(img, y_s, x_s, tf.cast(values, tf.float32))  # Trouble line
+        img = RandomMaskLoader.apply_output(img, y_s, x_s, tf.cast(values, tf.float32))
         return img
 
     @staticmethod
-    def bbox2mask(shape, margin, bbox_shape, times):  # Far far too many reshapes. Need to sort this out.
+    def bbox2mask(shape, margin, bbox_shape, times):
         mask = tf.zeros((1, shape, shape, 1), tf.float32)
         for i in range(times):
             bbox_base = RandomMaskLoader.random_bbox(shape, margin, bbox_shape)
@@ -131,8 +122,11 @@ class ImageDataLoader:
         self.opt = opt
         self.file_list = glob.glob(opt.__flist__ + "/*.jpg") + glob.glob(opt.__flist__ + "/*.png")
         self.file_list = tf.random.shuffle(self.file_list)
+        assert self.opt.__mask_type__ in ALL_MASK_TYPES, "Invalid Mask Type"
         assert (len(self.file_list) != 0), "Invalid Data Path"
         if self.opt.__gen_masks__:
+            if self.opt.__mask_type__ == "single_bbox":
+                self.opt.__box_count__ = 1
             self.data = self.prepare_training_gen()
         else:
             self.mask_list = glob.glob(opt.__mlist__ + "/*.jpg") + glob.glob(opt.__mlist__ + "/*.png")
@@ -181,14 +175,15 @@ class ImageDataLoader:
     def prepare_training_gen(self):
         ds_a = tf.data.Dataset.from_tensor_slices(self.file_list)
         ds_a = ds_a.map(lambda x: self.load_image(x, 3), num_parallel_calls=AUTO_TUNE)
-        mask_loader = RandomMaskLoader(self.opt)
-        ds_b = tf.data.Dataset.from_tensor_slices(self.file_list)
+        ds_b = tf.data.Dataset.from_tensor_slices(tf.zeros(shape=len(self.file_list)))
+        masker = RandomMaskLoader()
         if self.opt.__mask_type__ == 'free_form':
             kwargs = dict(shape=self.opt.__height__, max_angle=4, max_len=40, max_width=10,
                           times=self.opt.__box_count__)
+            ds_b = ds_b.map(lambda x: masker.random_ff_mask(**kwargs), num_parallel_calls=AUTO_TUNE)
         else:
             kwargs = dict(shape=self.opt.__height__, margin=20, bbox_shape=40, times=self.opt.__box_count__)
-        ds_b = ds_b.map(lambda x: mask_loader.mask_function(**kwargs), num_parallel_calls=AUTO_TUNE)
+            ds_b = ds_b.map(lambda x: masker.bbox2mask(**kwargs), num_parallel_calls=AUTO_TUNE)
         return self.return_data(ds_a, ds_b)
 
 
@@ -197,8 +192,11 @@ class BalancedAudioLoader:
         self.opt = opt
         self.file_list = glob.glob(self.opt.__flist__ + "/*.mp3") + glob.glob(self.opt.__flist__ + "/*.wav")
         self.file_list = tf.random.shuffle(self.file_list)
+        assert self.opt.__mask_type__ in ALL_MASK_TYPES, "Invalid Mask Type"
         assert (len(self.file_list) != 0), "Invalid Data Path"
         if self.opt.__gen_masks__:
+            if self.opt.__mask_type__ == "single_bbox":
+                self.opt.__box_count__ = 1
             self.data = self.prepare_training_gen()
         else:
             self.mask_list = glob.glob(self.opt.__mlist__ + "/*.jpg") + glob.glob(self.opt.__mlist__ + "/*.png")
@@ -263,14 +261,14 @@ class BalancedAudioLoader:
     def prepare_training_gen(self):
         ds_a = tf.data.Dataset.from_tensor_slices(self.file_list)
         ds_a = ds_a.map(self.load_audio, num_parallel_calls=AUTO_TUNE)
-        mask_loader = RandomMaskLoader(self.opt)
-        ds_b = tf.data.Dataset.from_tensor_slices(self.file_list)
+        ds_b = tf.data.Dataset.from_tensor_slices(tf.zeros(shape=len(self.file_list)))
         if self.opt.__mask_type__ == 'free_form':
             kwargs = dict(shape=self.opt.__height__, max_angle=4, max_len=40, max_width=10,
                           times=self.opt.__box_count__)
+            ds_b = ds_b.map(lambda x: RandomMaskLoader.random_ff_mask(**kwargs), num_parallel_calls=AUTO_TUNE)
         else:
             kwargs = dict(shape=self.opt.__height__, margin=20, bbox_shape=40, times=self.opt.__box_count__)
-        ds_b = ds_b.map(lambda x: mask_loader.mask_function(**kwargs), num_parallel_calls=AUTO_TUNE)
+            ds_b = ds_b.map(lambda x: RandomMaskLoader.bbox2mask(**kwargs), num_parallel_calls=AUTO_TUNE)
         balanced_data = tf.data.Dataset.zip((ds_a, ds_b))
         assert tf.data.experimental.cardinality(balanced_data).numpy() > 0, "No Data Available. Aborting"
         return balanced_data.map(BalancedAudioLoader.convert_complex_transform, num_parallel_calls=AUTO_TUNE).batch(1)
