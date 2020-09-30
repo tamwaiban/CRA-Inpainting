@@ -27,6 +27,8 @@ Mask type can be selected from the following; `free_form` `bbox` `single_bbox`
 ```
 python3 train.py --__gen_masks__ true --__mask_type__ free_form
 ```
+NOTE: There is currently a bug where the generated masks are non-unique and 
+only change in between runs. Looks trivial to fix, just a warning for now. 
 
 ### Inference
 This repository uses Tensorflow checkpoints, meaning to load the model
