@@ -1,4 +1,3 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/phillips96/cra-inpainting/badge?s=469ed0ba2016268a963beee4382fb4beefde85eb)](https://www.codefactor.io/repository/github/phillips96/cra-inpainting)
 # CRA-Painting
 Tensorflow2 Implementation of "Contextual Residual Aggregation for Ultra High-Resolution Image Inpainting" - 
 CVPR 2020 Oral. This is an implementation guided by the following:
