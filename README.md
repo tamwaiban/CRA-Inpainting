@@ -25,10 +25,10 @@ python3 train.py
 To generate a mask dataset, run the following instead.
 Mask type can be selected from the following; `free_form` `bbox` `single_bbox`
 ```
-python3 train.py --__gen_masks__ true --__mask_type__ free_form
+python3 train.py --__gen_masks__ true --__mask_type__ bbox
 ```
-NOTE: There is currently a bug where the generated masks are non-unique and 
-only change in between runs. Looks trivial to fix, just a warning for now. 
+NOTE: There is currently a bug where the generated masks from `free_form` fail.
+Please use `bbox` or `bbox_single` for now.
 
 ### Inference
 This repository uses Tensorflow checkpoints, meaning to load the model
