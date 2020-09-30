@@ -42,9 +42,12 @@ class RandomMaskLoader:
         y = x * slope + (c1 * r0 - c0 * r1) / (c1 - c0)
         thickness = tf.math.ceil(w / 2)
         yy = (tf.reshape(tf.math.floor(y), [-1, 1]) + tf.reshape(tf.range(-thickness - 1, thickness + 2), [1, -1]))
-        xx = tf.repeat(x, yy.shape[1])  # So this isn't working anymore, because shape is None when building ops.
+        # Can't simply do tf.repeat(x, yy.shape[1]) because there is no shape in the dataloaders view of it.
+        xx = tf.repeat(x, tf.cast(2 * thickness + 3, tf.uint16))
         values = tf.reshape(RandomMaskLoader.trapez(yy, tf.reshape(y, [-1, 1]), w), [-1])
         yy = tf.reshape(yy, [-1])
+
+
         limits_y = tf.math.logical_and(yy >= 0, yy < shape)
         limits_x = tf.math.logical_and(xx >= 0, xx < shape)
         limits = tf.math.logical_and(limits_y, limits_x)
@@ -72,7 +75,8 @@ class RandomMaskLoader:
                 brush_w = tf.cast(5 + GENERATOR.uniform([], 0, max_width), tf.float32)
                 end_x = tf.cast((start_x + length * tf.sin(angle)), tf.float32)
                 end_y = tf.cast((start_y + length * tf.cos(angle)), tf.float32)
-                mask = RandomMaskLoader.weighted_line(mask, start_y, start_x, end_y, end_x, brush_w, shape)
+                mask = RandomMaskLoader.weighted_line(mask, start_y, start_x, end_y, end_x, brush_w,
+                                                      tf.cast(shape, tf.float32))
                 start_x, start_y = end_x, end_y
         return tf.expand_dims((1 - mask) * 255, axis=-1)
 
