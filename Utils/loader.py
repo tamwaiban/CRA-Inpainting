@@ -42,7 +42,7 @@ class RandomMaskLoader:
         y = x * slope + (c1 * r0 - c0 * r1) / (c1 - c0)
         thickness = tf.math.ceil(w / 2)
         yy = (tf.reshape(tf.math.floor(y), [-1, 1]) + tf.reshape(tf.range(-thickness - 1, thickness + 2), [1, -1]))
-        xx = tf.repeat(x, yy.shape[1])  # So this isn't working anymore.
+        xx = tf.repeat(x, yy.shape[1])  # So this isn't working anymore, because shape is None when building ops.
         values = tf.reshape(RandomMaskLoader.trapez(yy, tf.reshape(y, [-1, 1]), w), [-1])
         yy = tf.reshape(yy, [-1])
         limits_y = tf.math.logical_and(yy >= 0, yy < shape)
@@ -122,7 +122,7 @@ class ImageDataLoader:
         self.opt = opt
         self.file_list = glob.glob(opt.__flist__ + "/*.jpg") + glob.glob(opt.__flist__ + "/*.png")
         self.file_list = tf.random.shuffle(self.file_list)
-        assert self.opt.__mask_type__ in ALL_MASK_TYPES, "Invalid Mask Type"
+        assert self.opt.__mask_type__ in ALL_MASK_TYPES, "Invalid Mask Type, Valid Types: " + ' '.join(ALL_MASK_TYPES)
         assert (len(self.file_list) != 0), "Invalid Data Path"
         if self.opt.__gen_masks__:
             if self.opt.__mask_type__ == "single_bbox":
@@ -192,7 +192,7 @@ class BalancedAudioLoader:
         self.opt = opt
         self.file_list = glob.glob(self.opt.__flist__ + "/*.mp3") + glob.glob(self.opt.__flist__ + "/*.wav")
         self.file_list = tf.random.shuffle(self.file_list)
-        assert self.opt.__mask_type__ in ALL_MASK_TYPES, "Invalid Mask Type"
+        assert self.opt.__mask_type__ in ALL_MASK_TYPES, "Invalid Mask Type, Valid Types: " + ' '.join(ALL_MASK_TYPES)
         assert (len(self.file_list) != 0), "Invalid Data Path"
         if self.opt.__gen_masks__:
             if self.opt.__mask_type__ == "single_bbox":

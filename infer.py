@@ -29,11 +29,13 @@ if __name__ == "__main__":
         r_, g_, b_, mask = tf.split(input_, 4, axis=1)
         img = tf.concat((r_, g_, b_), axis=1)
         first_output, second_output = generator(input_, training=False)
-        fusion_fake1 = img * (1 - mask) + first_output * mask
-        fusion_fake2 = img * (1 - mask) + second_output * mask
-        masked_input = img * (1 - mask) + mask
+        masked = img * (1 - mask)
+        fusion_fake1 = masked + first_output * mask
+        fusion_fake2 = masked + second_output * mask
+        masked_input = masked + mask
+
         img_save = tf.concat((img, masked_input, first_output, second_output, fusion_fake1, fusion_fake2), axis=3)
-        img_save = tf.cast((img_save + 1) * 127.5, tf.uint8)
+        img_save = tf.cast(img_save * 255, tf.uint8)
         img_save = tf.transpose(img_save, perm=[0, 2, 3, 1])[0, :, :, :]
         jpeg_string = tf.io.encode_jpeg(img_save)
         tf.io.write_file("Examples/%s_output.jpg" % step, jpeg_string)

@@ -90,7 +90,7 @@ class WassersteinTrainer:
     def sample_model(self, img, mask, first_out, second_out, fout_whole, sout_whole, epoch, sample_folder):
         masked_img = img * (1 - mask) + mask
         img_save = tf.concat((img, masked_img, first_out, second_out, fout_whole, sout_whole), axis=3)
-        img_save = (img_save + 1) * 127.5
+        img_save = img_save * 255
         img_copy = tf.transpose(img_save, perm=[0, 2, 3, 1])[0, :, :, :]
         img_copy = tf.clip_by_value(img_copy, 0, 255)
         img_copy = tf.cast(img_copy, tf.uint8)
