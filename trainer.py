@@ -65,7 +65,7 @@ class WassersteinTrainer:
                     second_perceptual_loss = tf.reduce_mean(second_perceptual_loss)
 
                     loss = opt.__lambda_l1__ * first_mask_loss + opt.__lambda_l1__ * second_mask_loss \
-                           + gan_loss + second_perceptual_loss * opt.__lambda_perceptual__
+                           + gan_loss * opt.__lambda_gan__ + second_perceptual_loss * opt.__lambda_perceptual__
 
                     g_grads = g_tape.gradient(loss, self.generator.trainable_weights)
                     opt_g.apply_gradients(zip(g_grads, self.generator.trainable_weights))

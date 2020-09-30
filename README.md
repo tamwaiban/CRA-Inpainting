@@ -33,6 +33,11 @@ during training by a secondary network, the weights of which are from VGG16, act
 as a feature extractor helping optimise the loss. 
 The discriminator utilises spectral (instance/batch) normalised convolutions. 
 
+You can update how much each aspect of the training loop affects the generator:  
+`__lambda_l1__` affects the impact from the raw output from the generator.  
+`__lambda_perceptual__` affects the impact from the VGG16 output.  
+`__lambda_gan__` affects the impact from the discriminator output. 
+
 ### Inference
 This repository uses Tensorflow checkpoints, meaning to load the model
 for inference, you will need to pass the directory containing your saved 

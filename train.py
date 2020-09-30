@@ -28,6 +28,7 @@ if __name__ == "__main__":
     PARSER.add_argument("--__lrd__", type=float, default=4e-4, help="Discriminator Learning Rate")
     PARSER.add_argument("--__activation__", type=str, default="elu", help="Model Activation")
     PARSER.add_argument("--__lambda_l1__", type=float, default=100, help="Parameter of L1Loss")
+    PARSER.add_argument("--__lambda_gan__", type=float, default=1, help="Parameter of Gan")
     PARSER.add_argument("--__lambda_perceptual__", type=float, default=10,
                         help="Parameter of FML1Loss (perceptual loss)")
 
