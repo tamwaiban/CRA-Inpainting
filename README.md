@@ -48,7 +48,7 @@ python3 infer.py --__gpath__ ./Examples/Model --__flist__ <INSERT_DIR_PATH> --__
 If you don't have pre-existing masks, you can call the same `__gen_masks__` and `__mask_type__` flags
 as before. 
 
-### Results w/ Intermediate Representations. 
+### Results w/ Intermediate Representations. (Focus on final image)
 ![Test Image 1](Examples/Example1.jpg)
 ![Test Image 2](Examples/Example2.jpg)
 ![Test Image 3](Examples/Example3.jpg)
