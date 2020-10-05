@@ -40,7 +40,6 @@ class WassersteinTrainer:
                 img = tf.concat((r_, g_, b_), axis=1)
                 with tf.GradientTape() as d_tape, tf.GradientTape() as g_tape:
                     first_output, second_output = self.generator(input_, training=True)
-
                     first_out_whole_img = img * (1 - mask) + first_output * mask
                     second_out_whole_img = img * (1 - mask) + second_output * mask
 
@@ -75,7 +74,8 @@ class WassersteinTrainer:
                     batches_left = opt.__epochs__ * opt.__steps_per_epoch__ - batches_done
                     time_left = datetime.timedelta(seconds=batches_left * (time.time() - prev_time))
                     prev_time = time.time()
-                    print("\r[Epoch %d/%d] [Batch %d/%d] [first Mask L1 Loss: %.5f] [second Mask L1 Loss: %.5f] [D Loss: %.5f] [Perceptual Loss: %.5f] [G Loss: %.5f] time_left: %s" %
+                    print("\r[Epoch %d/%d] [Batch %d/%d] [first Mask L1 Loss: %.5f] [second Mask L1 Loss: %.5f] [D "
+                          "Loss: %.5f] [Perceptual Loss: %.5f] [G Loss: %.5f] time_left: %s" %
                           ((epoch + 1), opt.__epochs__, (step + 1), opt.__steps_per_epoch__, first_mask_loss,
                            second_mask_loss, d_loss, second_perceptual_loss, gan_loss, time_left))
                 if (step + 1) % opt.__steps_per_epoch__ == 0:

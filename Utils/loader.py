@@ -47,7 +47,6 @@ class RandomMaskLoader:
         values = tf.reshape(RandomMaskLoader.trapez(yy, tf.reshape(y, [-1, 1]), w), [-1])
         yy = tf.reshape(yy, [-1])
 
-
         limits_y = tf.math.logical_and(yy >= 0, yy < shape)
         limits_x = tf.math.logical_and(xx >= 0, xx < shape)
         limits = tf.math.logical_and(limits_y, limits_x)
