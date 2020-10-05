@@ -43,7 +43,7 @@ This repository uses Tensorflow checkpoints, meaning to load the model
 for inference, you will need to pass the directory containing your saved 
 checkpoints, as such;
 ```
-python3 infer.py --__gpath__ ./Examples/ModelA --__flist__ ./Data/Images --__mlist__ ./Data/Masks
+python3 infer.py --__gpath__ ./Examples/Model --__flist__ <INSERT_DIR_PATH> --__mlist__ <INSERT_MASK_PATH>
 ```
 If you don't have pre-existing masks, you can call the same `__gen_masks__` and `__mask_type__` flags
 as before. 
@@ -51,6 +51,8 @@ as before.
 ### Results w/ Intermediate Representations. 
 ![Test Image 1](Examples/Example1.jpg)
 ![Test Image 2](Examples/Example2.jpg)
+![Test Image 3](Examples/Example3.jpg)
+![Test Image 4](Examples/Example4.jpg)
 
 ## Audio Implementation TBC
 
