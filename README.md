@@ -5,6 +5,9 @@ CVPR 2020 Oral. This is an implementation guided by the following:
  w/ VGG16 Patch Discriminator & 
 [ResidualPatchNet](https://github.com/wangyx240/High-Resolution-Image-Inpainting-GAN) - Attention / Residual Logic
 
+Please note the provided weights are an early sample from a model in training. This was trained for 3 days and didn't
+even make it through half of the places dataset! 
+
 ### Requirements
 ```bash
 pip3 install tensorflow==2.3.0 tensorflow-addons==0.11.2 opencv-python
