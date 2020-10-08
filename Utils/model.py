@@ -117,11 +117,10 @@ class CRAModel:
         feature = tf.transpose(feature, perm=[0, 2, 3, 1])
         feature = tf.image.resize(feature, [int(feature.shape[1] // 2), int(feature.shape[2] // 2)],
                                   method=tf.image.ResizeMethod.BILINEAR)
-        feature = tf.transpose(feature, perm=[0, 3, 1, 2])
+
         p_fb = tf.reshape(patch_fb, [b, 32 * 32, 1])
         p_matrix = tf.matmul(p_fb, tf.transpose(1 - p_fb, perm=[0, 2, 1]))
-        f = tf.transpose(feature, perm=[0, 2, 3, 1])
-        f = tf.reshape(f, [b, 32 * 32, 128])
+        f = tf.reshape(feature, [b, 32 * 32, 128])
         c = CRAModel.cosine_matrix(f, f) * p_matrix
         s = tf.nn.softmax(c, axis=2) * p_matrix
         return s

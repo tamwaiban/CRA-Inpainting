@@ -11,8 +11,7 @@ if __name__ == "__main__":
     PARSER.add_argument("--__gexists__", default=True, type=lambda x: (str(x).lower() == 'true'),
                         help="Load Pre-Existing Generator")
     PARSER.add_argument("--__gpath__", type=str, default="./Models", help="Pre-Existing Generator Filepath")
-    PARSER.add_argument("--__flist__", type=str, default="./Data/Images",
-                        help="Images Dataset Filepath")
+    PARSER.add_argument("--__flist__", type=str, default="./Data/Images", help="Images Dataset Filepath")
     PARSER.add_argument("--__mlist__", type=str, default="./Data/Masks", help="Mask Dataset Filepath")
     PARSER.add_argument('--__gen_masks__', default=False, type=lambda x: (str(x).lower() == 'true'),
                         help="Generate Masks on the fly")

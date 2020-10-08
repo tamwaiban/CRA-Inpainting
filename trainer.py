@@ -32,10 +32,14 @@ class WassersteinTrainer:
             opt.__lrd__, decay_steps=10000, decay_rate=0.96, staircase=True)
         opt_d = tf.keras.optimizers.Adam(learning_rate=d_sch)
 
+        gen_writer = tf.summary.create_file_writer("./Logs/Generator")
+
         train_loader = ImageDataLoader(opt)
         prev_time = time.time()
+        all_steps = 0
         for epoch in range(opt.__epochs__):
             for step, input_ in enumerate(train_loader.data):
+                all_steps += 1
                 r_, g_, b_, mask = tf.split(input_, 4, axis=1)  # Our mask is never changing...
                 img = tf.concat((r_, g_, b_), axis=1)
                 with tf.GradientTape() as d_tape, tf.GradientTape() as g_tape:
@@ -70,6 +74,13 @@ class WassersteinTrainer:
                     opt_g.apply_gradients(zip(g_grads, self.generator.trainable_weights))
 
                 if (step + 1) % 20 == 0:
+                    with gen_writer.as_default():
+                        tf.summary.scalar('First Mask Loss', first_mask_loss, step=all_steps)
+                        tf.summary.scalar('Second Mask Loss', second_mask_loss, step=all_steps)
+                        tf.summary.scalar('Gan Loss', second_mask_loss, step=all_steps)
+                        tf.summary.scalar('Perceptual Loss', second_perceptual_loss, step=all_steps)
+                        gen_writer.flush()
+
                     batches_done = epoch * opt.__steps_per_epoch__ + step
                     batches_left = opt.__epochs__ * opt.__steps_per_epoch__ - batches_done
                     time_left = datetime.timedelta(seconds=batches_left * (time.time() - prev_time))
