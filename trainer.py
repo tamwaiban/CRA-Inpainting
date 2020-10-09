@@ -75,7 +75,7 @@ class WassersteinTrainer:
                     opt_g.apply_gradients(zip(g_grads, self.generator.trainable_weights))
 
                 if (step + 1) % 20 == 0:
-                    with gen_writer.as_default():
+                    with gen_writer.as_default():  # Will this fall over if batch size isn't 1? Need to r_mean
                         tf.summary.scalar('First Mask Loss', first_mask_loss, step=all_steps)
                         tf.summary.scalar('Second Mask Loss', second_mask_loss, step=all_steps)
                         tf.summary.scalar('Gan Loss', second_mask_loss, step=all_steps)
