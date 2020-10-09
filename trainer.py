@@ -17,6 +17,7 @@ def check_dirs(opt):
 
 
 class WassersteinTrainer:
+    """ Not a full wasserstein impl., but takes logic from the design """
     def __init__(self, opt):
         tf.keras.backend.set_image_data_format("channels_first")
         check_dirs(opt)
