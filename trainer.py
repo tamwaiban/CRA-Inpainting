@@ -17,6 +17,7 @@ def check_dirs(opt):
 
 
 class WassersteinTrainer:
+    """ Not a full wasserstein impl., but takes logic from the design """
     def __init__(self, opt):
         tf.keras.backend.set_image_data_format("channels_first")
         check_dirs(opt)
@@ -74,11 +75,11 @@ class WassersteinTrainer:
                     opt_g.apply_gradients(zip(g_grads, self.generator.trainable_weights))
 
                 if (step + 1) % 20 == 0:
-                    with gen_writer.as_default():
-                        tf.summary.scalar('First Mask Loss', first_mask_loss, step=all_steps)
-                        tf.summary.scalar('Second Mask Loss', second_mask_loss, step=all_steps)
-                        tf.summary.scalar('Gan Loss', second_mask_loss, step=all_steps)
-                        tf.summary.scalar('Perceptual Loss', second_perceptual_loss, step=all_steps)
+                    with gen_writer.as_default():  # Will this fall over if batch size isn't 1? Need to r_mean
+                        tf.summary.scalar('First Mask Loss', tf.reduce_mean(first_mask_loss), step=all_steps)
+                        tf.summary.scalar('Second Mask Loss', tf.reduce_mean(second_mask_loss), step=all_steps)
+                        tf.summary.scalar('Gan Loss', tf.reduce_mean(second_mask_loss), step=all_steps)
+                        tf.summary.scalar('Perceptual Loss', tf.reduce_mean(second_perceptual_loss), step=all_steps)
                         gen_writer.flush()
 
                     batches_done = epoch * opt.__steps_per_epoch__ + step
