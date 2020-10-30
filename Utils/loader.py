@@ -181,7 +181,7 @@ class ImageDataLoader:
         ds_b = tf.data.Dataset.from_tensor_slices(tf.zeros(shape=len(self.file_list)))
         masker = RandomMaskLoader()
         if self.opt.__mask_type__ == 'free_form':
-            kwargs = dict(shape=self.opt.__height__, max_angle=4, max_len=40, max_width=10,
+            kwargs = dict(shape=self.opt.__height__, max_angle=4, max_len=40, max_width=30,
                           times=self.opt.__box_count__)
             ds_b = ds_b.map(lambda x: masker.random_ff_mask(**kwargs), num_parallel_calls=AUTO_TUNE)
         else:

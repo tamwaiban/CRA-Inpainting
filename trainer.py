@@ -40,7 +40,7 @@ class WassersteinTrainer:
         for epoch in range(opt.__epochs__):
             for step, input_ in enumerate(train_loader.data):
                 all_steps += 1
-                r_, g_, b_, mask = tf.split(input_, 4, axis=1)  # Our mask is never changing...
+                r_, g_, b_, mask = tf.split(input_, 4, axis=1)
                 img = tf.concat((r_, g_, b_), axis=1)
                 with tf.GradientTape() as d_tape, tf.GradientTape() as g_tape:
                     first_output, second_output = self.generator(input_, training=True)

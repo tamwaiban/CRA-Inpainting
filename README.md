@@ -52,10 +52,27 @@ If you don't have pre-existing masks, you can call the same `__gen_masks__` and 
 as before. 
 
 ### Results w/ Intermediate Representations. (Focus on final image)
-![Test Image 1](Examples/Example1.jpg)
-![Test Image 2](Examples/Example2.jpg)
-![Test Image 3](Examples/Example3.jpg)
-![Test Image 4](Examples/Example4.jpg)
+![Test Image 1](Examples/box.jpg)
+
+![Test Image F1](Examples/free.jpg)
+
+![Test Image 2](Examples/box2.jpg)
+
+![Test Image F2](Examples/free2.jpg)
+
+![Test Image 3](Examples/box3.jpg)
+
+![Test Image F3](Examples/free3.jpg)
+
+![Test Image 4](Examples/box4.jpg)
+
+
+### More Extreme Masks. Training is ongoing for larger obstructions
+![Test Image EF1](Examples/ef0.jpg)
+
+![Test Image E1](Examples/eb0.jpg)
+
+![Test Image EF2](Examples/ef1.jpg)
 
 ## Audio Implementation TBC
 

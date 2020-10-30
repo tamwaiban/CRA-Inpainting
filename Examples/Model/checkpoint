@@ -1,2 +1,0 @@
-model_checkpoint_path: "Generator_WGAN_epoch.ckpt"
-all_model_checkpoint_paths: "Generator_WGAN_epoch.ckpt"
